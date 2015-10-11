@@ -3,10 +3,8 @@
 #include <string.h>
 
 #define Vertex int
-#define NINFINITO -999999
 #define INFINITO 999999
-#define M 100
-#define greater(i, j) (prty[pq[i]] > prty[pq[j]] ? 1 : 0)
+#define MAXCARACTER 100
 
 /*roteador_t: contém o conteúdo do vértice e o ponteiro pro próximo*/
 typedef struct roteador_t {
