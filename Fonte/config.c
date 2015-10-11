@@ -1,6 +1,7 @@
 #include "roteador.h"
 
-/*recebe o número de vértices, e cria um novo grafo*/
+/********************************************************/
+/** recebe o número de vértices, e cria um novo grafo ***/
 digraph_t *digraphInit(int V) {
     Vertex v;
     digraph_t *G = malloc(sizeof(digraph_t));
@@ -11,8 +12,8 @@ digraph_t *digraphInit(int V) {
         G->adj[v] = NULL;
     return G;
 }
-
-/*insere uma nova aresta*/
+/********************************************************/
+/*************** insere uma nova aresta *****************/
 void digraphInsertA(digraph_t *G, Vertex v, Vertex w, int cost) {
     roteador_t *a;
     for (a = G->adj[v]; a != NULL; a = a->next)
@@ -23,7 +24,8 @@ void digraphInsertA(digraph_t *G, Vertex v, Vertex w, int cost) {
     G->A+=2;
 }
 
-/* recebe um vértice e o insere em um novo node*/
+/********************************************************/
+/*** recebe um vértice e o insere em um novo node *******/
 roteador_t *newNode(Vertex w, roteador_t *next, int cost) {
     roteador_t *a = malloc(sizeof (roteador_t));
     a->w = w;
@@ -32,6 +34,8 @@ roteador_t *newNode(Vertex w, roteador_t *next, int cost) {
     return a;
 }
 
+/********************************************************/
+/*********** Exclui todas as arestas do grafo ***********/
 void undoloc(roteador_t *roteador) {
 
     if(roteador != NULL) {
@@ -40,6 +44,8 @@ void undoloc(roteador_t *roteador) {
     }
 }
 
+/********************************************************/
+/***************** Exclui o grafo da rede ***************/
 void digraphExit(digraph_t *G) {
     Vertex v;
     for(v=0; v<G->V; v++) {
@@ -49,6 +55,8 @@ void digraphExit(digraph_t *G) {
     free(G);
 }
 
+/********************************************************/
+/***************** Imprime o grafo da rede **************/
 void digraphShow(digraph_t *G) {
     roteador_t *a;
     Vertex i;
@@ -85,9 +93,19 @@ void dijkstra(digraph_t *G, Vertex s) {
         parent[w0] = v0;
         dist[w0] = mindist;
     }
-    printf("Dijkstra ------- %lf\n", dist[3]);
+    printf("%d: ", s);
+    for(v=0; v<G->V; v++)
+        if(v!=s)
+            printf("%d - %.0lf | ", v, dist[v]);
+    printf("\n");
+
+    for(v=0; v<G->V; v++)
+        printf("%d - %d | ", v, parent[v]);
+    printf("\n");
 }
 
+/********************************************************/
+/**** Le o arquivo para construir os enlades da rede ****/
 digraph_t *init() {
     digraph_t *G;
     Vertex v, w;
@@ -115,6 +133,5 @@ digraph_t *init() {
         digraphInsertA(G, (v-1), (w-1), cost);
 
     fclose(F);
-
     return G;
 }
