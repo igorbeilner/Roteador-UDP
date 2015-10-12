@@ -88,7 +88,7 @@ void digraphConfig(digraph_t *G, int IDRouter, int Port, char *IP) {
 
 /********************************************************/
 /**** Le o arquivo para construir os enlades da rede ****/
-digraph_t *init() {
+digraph_t *init(void) {
 	digraph_t *G;
 	Vertex v, w;
 	int cost, maxVertex=0;

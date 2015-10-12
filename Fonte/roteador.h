@@ -22,13 +22,22 @@ typedef struct roteador_t {
 	struct roteador_t *next;
 }roteador_t;
 
+typedef struct packet_t {
+	int id;
+	char message[BUFLEN];
+}packet_t;
+
 /*digraph_t: contém o número de vértices do grafo e o número de arestas.
 adj é a lista de adjacencia.*/
 typedef struct digraph_t {
 	int V;
 	int A;
+	int ID;
 	roteador_t **adj;
 }digraph_t;
+
+extern digraph_t *G;
+extern pthread_mutex_t lock;
 
 /********************* protótipos das funções **********************/
 digraph_t	*digraphInit		(int V);
@@ -37,10 +46,12 @@ roteador_t	*newNode			(Vertex w, roteador_t *next, int cost);
 void		 digraphShowUnion	(digraph_t *G);
 void		 digraphShowConfig	(digraph_t *G);
 void		 dijkstra			(digraph_t *G, Vertex s, Vertex *parent);
-digraph_t	*init 				();
+digraph_t	*init 				(void);
 void		 digraphExit 		(digraph_t *G, int ID);
 void		 undoloc			(roteador_t *roteador);
 void		 die 				(char *s);
-void		 packetSend			(int *PORT);
-void		 packetReceive		(int *PORT);
+void		 packetSend			(packet_t buf);
+void		 packetReceive		(void);
 void		 nextHop			(digraph_t *G, int ID);
+void		 feedForward		(packet_t buf);
+void		 interface			(void);

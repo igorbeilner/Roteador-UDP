@@ -20,9 +20,12 @@
 
 #include "roteador.h"
 
+digraph_t *G;
+pthread_mutex_t lock;
+
 int main() {
 	int ID;
-	digraph_t *G;
+	pthread_t recThread, sendThread;
 
 /****** Bloco de inicializacao da rede ********/
 	G = init();									// Abre os arquivos e configura a rede
@@ -35,8 +38,17 @@ int main() {
 		return 0;
 	}
 /*********************************************/
+	G->ID = ID;
 
 	nextHop(G, ID);
+
+	pthread_mutex_init(&lock, NULL);
+
+	pthread_create(&recThread, 	NULL, 	(void *)packetReceive, 	NULL);
+	pthread_create(&sendThread, NULL, 	(void *)interface, 	NULL);
+
+	pthread_join(recThread, 	NULL);
+	pthread_join(sendThread, 	NULL);
 
 	digraphExit(G, ID);
 	return 0;
