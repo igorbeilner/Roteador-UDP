@@ -73,7 +73,7 @@ void digraphShowConfig(digraph_t *G) {
 	Vertex v;
 	printf("Roteador   |   Porta   |   IP\n");
 	for(v=0; v<G->V; v++)
-		printf("   %-5d   |   %-6d  | %s\n", v, G->adj[v]->port, G->adj[v]->ip);
+		printf("   %-5d   |   %-6d  | %s\n", v+1, G->adj[v]->port, G->adj[v]->ip);
 	printf("\n");
 
 }
