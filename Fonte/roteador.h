@@ -7,9 +7,7 @@
 
 #define Vertex int
 #define INFINITO 999999
-#define MAXCARACTER 100     /* Tamanho maximo da mensagem enviada pelo usuario */
 #define BUFLEN 100     /* Tamanho maximo da mensagem enviada pelo usuario */
-#define SERVER "127.0.0.1"     /* Tamanho maximo da mensagem enviada pelo usuario */
 #define IPLEN 15
 
 /*roteador_t: contém o conteúdo do vértice e o ponteiro pro próximo*/
@@ -22,11 +20,6 @@ typedef struct roteador_t {
 	struct roteador_t *next;
 }roteador_t;
 
-typedef struct packet_t {
-	int id;
-	char message[BUFLEN];
-}packet_t;
-
 /*digraph_t: contém o número de vértices do grafo e o número de arestas.
 adj é a lista de adjacencia.*/
 typedef struct digraph_t {
@@ -35,6 +28,14 @@ typedef struct digraph_t {
 	int ID;
 	roteador_t **adj;
 }digraph_t;
+
+/******************************/
+/***** Pacote de dados ********/
+typedef struct packet_t {
+	int id;
+	char message[BUFLEN];
+}packet_t;
+
 
 extern digraph_t *G;
 extern pthread_mutex_t lock;

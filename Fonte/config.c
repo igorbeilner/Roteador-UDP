@@ -69,6 +69,8 @@ void digraphShowUnion(digraph_t *G) {
 
 }
 
+/********************************************************/
+/********* Imprime a porta e o ip do roteador ***********/
 void digraphShowConfig(digraph_t *G) {
 	Vertex v;
 	printf("Roteador   |   Porta   |   IP\n");
@@ -78,6 +80,8 @@ void digraphShowConfig(digraph_t *G) {
 
 }
 
+/**********************************************************************/
+/***************** Configura a porta e o ip do roteador ***************/
 void digraphConfig(digraph_t *G, int IDRouter, int Port, char *IP) {
 	int i;
 	for(i=0; IP[i] != '\0'; i++)

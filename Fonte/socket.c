@@ -7,10 +7,21 @@ void die(char *s) {
 
 void interface(void) {
 	packet_t buf;
+	int ID;
+	pthread_mutex_lock(&lock);
+	ID = G->ID;
+	pthread_mutex_unlock(&lock);
 
 	while(1) {
 		printf("Digite o id de destino e a mensagem: \n");
-		scanf("%d %s", &buf.id, buf.message);
+		scanf("%d", &buf.id);
+
+		if(buf.id < 1 || buf.id > ID) {
+			printf("Desligando.....\n");
+			return;
+		}
+
+		scanf("%s", buf.message);
 
 		packetSend(buf);
 	}
@@ -31,7 +42,7 @@ void packetSend(packet_t buf) {
 
 	struct sockaddr_in si_other;
 	int s;
-	socklen_t slen = sizeof(si_other);\
+	socklen_t slen = sizeof(si_other);
 
 	if((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
 		die("socket");

@@ -39,16 +39,24 @@ int main() {
 	}
 /*********************************************/
 	G->ID = ID;
-
+/***********************************************************************/
+/** Calcula os proximo salto para alcancar todos os outros roteadores **/
 	nextHop(G, ID);
+/***********************************************************************/
 
+/***********************************************************************/
+/**** Cria uma thread para ouvir a porta e outra para enviar dados *****/
 	pthread_mutex_init(&lock, NULL);
 
-	pthread_create(&recThread, 	NULL, 	(void *)packetReceive, 	NULL);
+
 	pthread_create(&sendThread, NULL, 	(void *)interface, 	NULL);
+	pthread_create(&recThread, 	NULL, 	(void *)packetReceive, 	NULL);
+
+	pthread_join(sendThread, 	NULL);
+	pthread_cancel(recThread);
 
 	pthread_join(recThread, 	NULL);
-	pthread_join(sendThread, 	NULL);
+/***********************************************************************/
 
 	digraphExit(G, ID);
 	return 0;
