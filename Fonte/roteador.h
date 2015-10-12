@@ -2,12 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <netdb.h>
 #include <pthread.h>
-#include <sys/time.h>
+#include <unistd.h>
 
 #define Vertex int
 #define INFINITO 999999
@@ -21,6 +17,7 @@ typedef struct roteador_t {
 	Vertex w;
 	int cost;
 	int port;
+	int *nextHop;
 	char ip[IPLEN];
 	struct roteador_t *next;
 }roteador_t;
@@ -39,11 +36,11 @@ void		 digraphInsertA		(digraph_t *G, Vertex v, Vertex w, int cost);
 roteador_t	*newNode			(Vertex w, roteador_t *next, int cost);
 void		 digraphShowUnion	(digraph_t *G);
 void		 digraphShowConfig	(digraph_t *G);
-void		 dijkstra			(digraph_t *G, Vertex s);
+void		 dijkstra			(digraph_t *G, Vertex s, Vertex *parent);
 digraph_t	*init 				();
-void		 digraphExit 		(digraph_t *G);
+void		 digraphExit 		(digraph_t *G, int ID);
 void		 undoloc			(roteador_t *roteador);
 void		 die 				(char *s);
-void		 frameSend			(int *PORT);
-void		 frameReceive		(int *PORT);
-void		 initRouter			(int IDRouter);
+void		 packetSend			(int *PORT);
+void		 packetReceive		(int *PORT);
+void		 nextHop			(digraph_t *G, int ID);

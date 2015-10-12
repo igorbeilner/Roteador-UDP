@@ -5,9 +5,9 @@ void die(char *s) {
 	exit(1);
 }
 
-void frameSend(int *PORT) {
+void packetSend(int *PORT) {
 	struct sockaddr_in si_other;
-	int s;
+	int s, sendId;
 	socklen_t slen = sizeof(si_other);
 	char buf[BUFLEN];
 	char message[BUFLEN];
@@ -25,8 +25,8 @@ void frameSend(int *PORT) {
 	}
 
 	while(1) {
-		printf("Enter message : ");
-		scanf("%s",message);
+		printf("Digite o id de destino e a mensagem: ");
+		scanf("%d %s", &sendId, message);
 
 		if(sendto(s, message, strlen(message) , 0 , (struct sockaddr *) &si_other, slen)==-1)
 			die("sendto()");
@@ -42,7 +42,7 @@ void frameSend(int *PORT) {
 	close(s);
 }
 
-void frameReceive(int *PORT) {
+void packetReceive(int *PORT) {
 
 	struct sockaddr_in si_me, si_other;
 	int s, recv_len;
@@ -75,42 +75,5 @@ void frameReceive(int *PORT) {
 		if(sendto(s, buf, recv_len, 0, (struct sockaddr*) &si_other, slen) == -1)
 			die("sendto()");
 	}
-
-	close(s);
-}
-
-void initRouter(int IDRouter) {
-	struct sockaddr_in si_other;
-	int s;
-	socklen_t slen = sizeof(si_other);
-	char buf[MAXCARACTER];
-	char message[MAXCARACTER];
-
-
-	if((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
-		die("socket");
-
-	si_other.sin_family = AF_INET;
-	//si_other.sin_port = htons(Port);
-	// if (inet_aton(IP , &si_other.sin_addr) == 0) {
-		fprintf(stderr, "inet_aton() failed\n");
-		exit(1);
-	//}
-	bzero(&(si_other.sin_zero),8);
-
-	while(1) {
-		printf("Digite a mensagem: ");
-		scanf("%s", message);
-		if(sendto(s, message, strlen(message), 0, (struct sockaddr*) &si_other, slen) == -1)
-			die("sendto()");
-
-		memset(buf,'\0', MAXCARACTER);
-
-		if(recvfrom(s, buf, MAXCARACTER, 0, (struct sockaddr*)&si_other, &slen) == -1)
-			die("recvfrom()");
-
-		puts(buf);
-	}
-
 	close(s);
 }

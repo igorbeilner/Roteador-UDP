@@ -25,18 +25,19 @@ int main() {
 	digraph_t *G;
 
 /****** Bloco de inicializacao da rede ********/
-	G = init();                                  // Abre os arquivos e configura a rede
-	printf("ID: ");                              // Solicita o ID do roteator instanciado
+	G = init();									// Abre os arquivos e configura a rede
+	printf("ID: ");								// Solicita o ID do roteator instanciado
 	scanf("%d", &ID);
+	ID -= 1;
 	printf("\n");
-	if(ID > G->V || ID < 1) {                    // Valida o ID informado
+	if(ID > G->V || ID < 0) {					// Valida o ID informado
 		printf("ID do roteador invalido\n");
 		return 0;
 	}
 /*********************************************/
-	dijkstra(G, ID-1);
-	digraphShowConfig(G);
 
-	digraphExit(G);
+	nextHop(G, ID);
+
+	digraphExit(G, ID);
 	return 0;
 }
