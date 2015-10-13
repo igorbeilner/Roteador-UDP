@@ -26,6 +26,7 @@ typedef struct digraph_t {
 	int V;
 	int A;
 	int ID;
+	int *sequence;
 	roteador_t **adj;
 }digraph_t;
 
@@ -33,12 +34,16 @@ typedef struct digraph_t {
 /***** Pacote de dados ********/
 typedef struct packet_t {
 	int id;
+	int idSrc;
+	char ack;
+	int sequence;
 	char message[BUFLEN];
 }packet_t;
 
 
 extern digraph_t *G;
 extern pthread_mutex_t lock;
+extern char _ACK;
 
 /********************* protótipos das funções **********************/
 digraph_t	*digraphInit		(int V);
@@ -54,5 +59,4 @@ void		 die 				(char *s);
 void		 packetSend			(packet_t buf);
 void		 packetReceive		(void);
 void		 nextHop			(digraph_t *G, int ID);
-void		 feedForward		(packet_t buf);
 void		 interface			(void);

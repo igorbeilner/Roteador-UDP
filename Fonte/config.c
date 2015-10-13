@@ -7,9 +7,12 @@ digraph_t *digraphInit(int V) {
 	digraph_t *G = malloc(sizeof(digraph_t));
 	G->V = V;
 	G->A = 0;
+	G->sequence = (int*)malloc(G->V*sizeof(int));
 	G->adj = malloc(V*sizeof(roteador_t));
-	for (v = 0; v < V; v++)
+	for (v = 0; v < V; v++) {
 		G->adj[v] = NULL;
+		G->sequence[v] = 0;
+	}
 
 	return G;
 }
@@ -50,6 +53,7 @@ void undoloc(roteador_t *roteador) {
 void digraphExit(digraph_t *G, int ID) {
 	Vertex v;
 	free(G->adj[ID]->nextHop);
+	free(G->sequence);
 	for(v=0; v<G->V; v++) {
 		undoloc(G->adj[v]);
 	}

@@ -22,10 +22,12 @@
 
 digraph_t *G;
 pthread_mutex_t lock;
+char _ACK;
 
 int main() {
 	int ID;
 	pthread_t recThread, sendThread;
+	_ACK = 0;
 
 /****** Bloco de inicializacao da rede ********/
 	G = init();									// Abre os arquivos e configura a rede
