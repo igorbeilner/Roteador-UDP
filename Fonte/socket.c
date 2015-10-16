@@ -133,7 +133,10 @@ void packetReceive(void) {
 
 				packetSend(buf);
 			}else{				/* Recebeu uma confirmacao */
-				_ACK = 1;
+
+				if(buf.sequence == G->sequence[buf.idSrc])
+					_ACK = 1;
+
 			}
 		} else {				/* Retransmite para outro roteador com o menos custo */
 			packetSend(buf);
