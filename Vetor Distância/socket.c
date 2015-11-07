@@ -149,3 +149,43 @@ void packetReceive(void) {
 	}
 	close(s);
 }
+
+void refresh(void) {
+	int Port, next, i, j;
+	char IP[IPLEN];
+
+	for(j=1; j<_roteador.E; j++) {
+		if(j == _ID)
+			continue;
+
+		pthread_mutex_lock(&lock);
+
+			Port = _roteador.data[j].port;
+			for(i=0; _roteador.data[j].id[i] != '\0'; i++)
+				IP[i] = _roteador.data[j].id[i];
+			IP[i] = '\0';
+
+		pthread_mutex_unlock(&lock);
+
+		struct sockaddr_in si_other;
+		socklen_t slen = sizeof(si_other);
+		int s;
+
+		if((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+			die("socket");
+
+		memset((char *) &si_other, 0, sizeof(si_other));
+		si_other.sin_family = AF_INET;
+		si_other.sin_port = htons(Port);
+
+		if(inet_aton(IP, &si_other.sin_addr) == 0) {
+			fprintf(stderr, "inet_aton() failed\n");
+			exit(1);
+		}
+
+		if(sendto(s, &buf, sizeof(packet_t) , 0, (struct sockaddr *) &si_other, slen)==-1)
+			die("sendto()");
+
+		close(s);
+	}
+}
