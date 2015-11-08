@@ -20,13 +20,14 @@
 
 #include "roteador.h"
 
-pthread_mutex_t lock;
+pthread_mutex_t _LOCK;
 header_t _ROTEADOR;
 char _ACK;
 int _ID;
 
 int main() {
-	//pthread_t recThread, sendThread;
+	pthread_t recThread;//, sendThread;
+	pthread_t pRefresh;
 	_ACK = 0;
 
 /****** Bloco de inicializacao da rede ********/
@@ -46,18 +47,21 @@ int main() {
 	printf("\n");
 	showRoteadorConfig();
 /***********************************************************************/
-/**** Cria uma thread para ouvir a porta e outra para enviar dados *****
-	pthread_mutex_init(&lock, NULL);
 
+/**** Cria uma thread para ouvir a porta e outra para enviar dados *****/
 
-	pthread_create(&sendThread, NULL, 	(void *)interface, 	NULL);
+	pthread_mutex_init(&_LOCK, NULL);
+	pthread_create(&pRefresh, NULL, 	(void *)refresh, 	NULL);
+
+	//pthread_create(&sendThread, NULL, 	(void *)interface, 	NULL);
 	pthread_create(&recThread, 	NULL, 	(void *)packetReceive, 	NULL);
 
-	pthread_join(sendThread, 	NULL);
-	pthread_cancel(recThread);
+	pthread_join(pRefresh, 	NULL);
+	//pthread_join(sendThread, 	NULL);
+	//pthread_cancel(recThread);
 
 	pthread_join(recThread, 	NULL);
-***********************************************************************/
+/***********************************************************************/
 
 	return 0;
 }

@@ -5,18 +5,20 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define INFINITO 999999
-#define BUFLEN 100     /* Tamanho maximo da mensagem enviada pelo usuario */
-#define IPLEN 15
+#define INFINITO 255	/* Custo para um roteador se caminho */
+#define DIAMETRO 20		/* Diametro da rede */
+#define BUFLEN 100     	/* Tamanho maximo da mensagem enviada pelo usuario */
+#define IPLEN 15		/* Tamanho da string IP */
 
 /******************************/
 /***** Pacote de dados ********/
 typedef struct packet_t {
 	int id;					/* ID do roteador destino */
 	int idSrc;				/* ID do roteador fonte para envio de confirmacao */
-	char type;				/* Tipo da mensagem (0-Envio, 1-Confirmacao */
+	char type;				/* Tipo da mensagem (0-Envio, 1-Confirmacao, 2-Configuracao, 3-Confirmacao de configuracao) */
+	int hop;				/* Quantidade de saltos efetuados pelo pacote */
 	int sequence;			/* Numero de sequencia do pacote */
-	char message[BUFLEN];	/* Dados que estao sendo enviados */
+	unsigned char message[BUFLEN];	/* Dados que estao sendo enviados */
 }packet_t;
 
 /******************************/
@@ -32,17 +34,17 @@ typedef struct enlace_t {
 typedef struct header_t {
 	int N;				/* Numero de roteadores da rede */
 	int E;				/* Numero de roteadores vizinhos */
-	int *sequence;
-	int *link;			/* Roteadores vizinhos */
+	int *sequence;		/* Controla o numero de sequencia dos pacotes para cada destino */
+	unsigned char *link;/* Roteadores vizinhos */
 	enlace_t *data;		/* IP e Porta dos roteadores vizinhos */
 }header_t;
 
 /************************************/
 /******** Variaveis globais *********/
-extern pthread_mutex_t lock;
-extern char _ACK;				/* Indica recepcao de confirmacao (0-Nao recebeu, 1-recebeu) */
-extern header_t _ROTEADOR;		/* Informacoes da rede */
-extern int _ID;					/* ID do roteadore instanciado */
+extern pthread_mutex_t 	_LOCK;
+extern char 			_ACK;			/* Indica recepcao de confirmacao (0-Nao recebeu, 1-recebeu) */
+extern header_t 		_ROTEADOR;		/* Informacoes da rede */
+extern int 				_ID;			/* ID do roteadore instanciado */
 
 /*******************************************************************/
 /********************* protótipos das funções **********************/
@@ -55,3 +57,4 @@ void 		ipCopy				(char *IP, int adjCount);
 void 		showEnlacesConfig	(void);
 void		showRoteadorConfig	(void);
 void		routerInit			(void);
+void		refresh				(void);

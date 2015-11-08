@@ -24,7 +24,7 @@ void ipCopy(char *IP, int adjCount) {
 void showEnlacesConfig(void) {
 	int i;
 	printf("  Origem  |  Destino  |  Custo\n");
-	for(i=0; i<=_ROTEADOR.N; i++)
+	for(i=1; i<=_ROTEADOR.N; i++)
 		if(_ROTEADOR.link[i] != INFINITO)
 			printf("   %-6d |   %-7d |   %d\n", _ID, i, _ROTEADOR.link[i]);
 }
@@ -34,7 +34,7 @@ void showEnlacesConfig(void) {
 void showRoteadorConfig(void) {
 	int i;
 	printf("Roteador   |   Porta   |   IP\n");
-	for(i=0; i<=_ROTEADOR.E; i++)
+	for(i=1; i<=_ROTEADOR.E; i++)
 		printf("   %-5d   |   %-6d  | %s\n", _ROTEADOR.data[i].id, _ROTEADOR.data[i].port, _ROTEADOR.data[i].ip);
 
 }
@@ -70,7 +70,7 @@ void routerInit(void) {
 		fclose(F);
 		exit(1);
 	}
-	_ROTEADOR.link = (int*)malloc(maxVertex*(sizeof(int))+1);
+	_ROTEADOR.link = (unsigned char*)malloc(maxVertex*(sizeof(unsigned char))+1);
 	_ROTEADOR.N = maxVertex;
 	_ROTEADOR.sequence = (int*)malloc(maxVertex*sizeof(int)+1);
 	linkInit(maxVertex);
@@ -82,6 +82,7 @@ void routerInit(void) {
 		else if(w == _ID)
 			_ROTEADOR.link[v] = cost, adjCount++;
 	}
+	//_ROTEADOR.link[_ID] = 0;
 	_ROTEADOR.data = (enlace_t*)malloc(adjCount*(sizeof(enlace_t)));
 
 	fclose(F);
@@ -106,7 +107,7 @@ void routerInit(void) {
 		exit(1);
 	}
 
-	adjCount=-1;
+	adjCount=0;
 	fseek(F, 0, SEEK_SET);
 	while(fscanf(F, "%d %d %s", &IDRouterF, &Port, IP) == 3) {
 		if(_ROTEADOR.link[IDRouterF] != INFINITO || IDRouterF == _ID) {

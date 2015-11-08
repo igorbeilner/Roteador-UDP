@@ -8,10 +8,10 @@ void die(char *s) {
 void interface(void) {
 	packet_t buf;
 	int ID, idMax, i;
-	pthread_mutex_lock(&lock);
+	pthread_mutex_lock(&_LOCK);
 	ID = _ID;
 	idMax = _ROTEADOR.N;
-	pthread_mutex_unlock(&lock);
+	pthread_mutex_unlock(&_LOCK);
 
 	while(1) {
 		printf("Digite o id de destino e a mensagem: \n");
@@ -22,14 +22,15 @@ void interface(void) {
 			printf("Desligando.....\n");
 			return;
 		}
-		pthread_mutex_lock(&lock);
+		pthread_mutex_lock(&_LOCK);
 		_ROTEADOR.sequence[buf.id-1]++;
 		buf.sequence = _ROTEADOR.sequence[buf.id-1];
-		pthread_mutex_unlock(&lock);
+		pthread_mutex_unlock(&_LOCK);
 
 		scanf("%s", buf.message);
-		buf.idSrc = ID+1;
+		buf.idSrc = ID;
 		buf.type = 0;
+		buf.hop = 0;
 		packetSend(buf);
 
 		for(i=1; i<=3; i++) {
@@ -51,24 +52,33 @@ void interface(void) {
 }
 
 void packetSend(packet_t buf) {
-	int idLocal, Port, next;//, i;
+	int idLocal, Port, next, j, i;
 	char IP[IPLEN];
 
-	pthread_mutex_lock(&lock);
+	pthread_mutex_lock(&_LOCK);
 
 	idLocal = _ID;
-	//next = G->adj[G->ID]->nextHop[buf.id-1];
-	//Port = G->adj[G->adj[G->ID]->nextHop[buf.id-1]]->port;
-	//for(i=0; G->adj[G->adj[G->ID]->nextHop[buf.id-1]]->ip[i] != '\0'; i++)
-		//IP[i] = G->adj[G->adj[G->ID]->nextHop[buf.id-1]]->ip[i];
-	//IP[i] = '\0';
+	if(_ROTEADOR.link[buf.id] != INFINITO)
+		next = _ROTEADOR.link[buf.id];
+	else
+		return;
 
-	pthread_mutex_unlock(&lock);
-	if(buf.type == 0 && idLocal != buf.idSrc-1) {/* Verifica se e uma confirmacao ou se e pra ele mesmo */
+	for(j=0; j<_ROTEADOR.E; j++)
+		if(_ROTEADOR.data[j].id == buf.id)
+			break;
+	Port 	= _ROTEADOR.data[j].port;
+
+	for(i=0; _ROTEADOR.data[j].ip[i] != '\0'; i++)
+		IP[i] = _ROTEADOR.data[j].ip[i];
+	IP[i] = '\0';
+
+	pthread_mutex_unlock(&_LOCK);
+	if(buf.type == 0 && idLocal != buf.idSrc) {/* Verifica se e uma confirmacao ou se e pra ele mesmo */
 		//system("clear");
-		printf("Roteador %d encaminhando mensagem com sequencia %d para o destino %d\n", idLocal+1, buf.sequence, next+1);
+		printf("Roteador %d encaminhando mensagem com sequencia %d para o destino %d\n", idLocal, buf.sequence, next);
 	}
 
+	buf.hop++;
 	struct sockaddr_in si_other;
 	int s;
 	socklen_t slen = sizeof(si_other);
@@ -94,7 +104,7 @@ void packetSend(packet_t buf) {
 void packetReceive(void) {
 
 	struct sockaddr_in si_me, si_other;
-	int s, recv_len, Port, ID;
+	int s, recv_len, Port, ID, i;
 	socklen_t slen = sizeof(si_other);
 	packet_t buf;
 
@@ -103,12 +113,16 @@ void packetReceive(void) {
 
 	memset((char *) &si_me, 0, sizeof(si_me));
 
-	pthread_mutex_lock(&lock);
+	pthread_mutex_lock(&_LOCK);
 
-	//Port = G->adj[G->ID]->port;
-	//ID = G->ID;
+	for(i=0; i<_ROTEADOR.E; i++)
+		if(_ROTEADOR.data[i].id == _ID)
+			break;
 
-	pthread_mutex_unlock(&lock);
+	Port 	= _ROTEADOR.data[i].port;
+	ID 		= _ID;
+
+	pthread_mutex_unlock(&_LOCK);
 
 	si_me.sin_family = AF_INET;
 	si_me.sin_port = htons(Port);
@@ -137,12 +151,15 @@ void packetReceive(void) {
 				buf.type = 1;
 
 				packetSend(buf);
-			}else{				/* Recebeu uma confirmacao */
-
-				//if(buf.sequence == G->sequence[buf.idSrc])
+			} else if(buf.type == 1) {				/* Recebeu uma confirmacao de um pacote de dados */
+				if(buf.sequence == _ROTEADOR.sequence[buf.idSrc])
 					_ACK = 1;
+			} else if(buf.type == 2) {				/* Recebeu um pacote de configuracao */
+
+			} else if(buf.type == 3) {				/* Recebeu uma confirmacao de um pacote de configuracao */
 
 			}
+
 		} else {				/* Retransmite para outro roteador com o menos custo */
 			packetSend(buf);
 		}
@@ -151,41 +168,57 @@ void packetReceive(void) {
 }
 
 void refresh(void) {
-	int Port, next, i, j;
+	int Port, i, j, k;
 	char IP[IPLEN];
+	packet_t buf;
 
-	for(j=1; j<_ROTEADOR.E; j++) {
-		if(j == _ID)
-			continue;
+	buf.idSrc = _ID;
 
-		pthread_mutex_lock(&lock);
+	while(1) {
 
-			Port = _ROTEADOR.data[j].port;
-			for(i=0; _ROTEADOR.data[j].id[i] != '\0'; i++)
-				IP[i] = _ROTEADOR.data[j].id[i];
-			IP[i] = '\0';
+		for(j=1; j<_ROTEADOR.E; j++) {
+			if(j == _ID)
+				continue;
+			buf.id = j;
+			buf.type = 2;
+			buf.hop = 0;
+			buf.sequence = 0;
 
-		pthread_mutex_unlock(&lock);
+			for(k=1; k<=_ROTEADOR.N; k++)
+				buf.message[k] = _ROTEADOR.link[k];
+			buf.message[k] = '\0';
 
-		struct sockaddr_in si_other;
-		socklen_t slen = sizeof(si_other);
-		int s;
+			pthread_mutex_lock(&_LOCK);
 
-		if((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
-			die("socket");
+				Port = _ROTEADOR.data[j].port;
+				for(i=0; _ROTEADOR.data[j].ip[i] != '\0'; i++)
+					IP[i] = _ROTEADOR.data[j].ip[i];
+				IP[i] = '\0';
 
-		memset((char *) &si_other, 0, sizeof(si_other));
-		si_other.sin_family = AF_INET;
-		si_other.sin_port = htons(Port);
+			pthread_mutex_unlock(&_LOCK);
 
-		if(inet_aton(IP, &si_other.sin_addr) == 0) {
-			fprintf(stderr, "inet_aton() failed\n");
-			exit(1);
+			struct sockaddr_in si_other;
+			socklen_t slen = sizeof(si_other);
+			int s;
+
+			if((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+				die("socket");
+
+			memset((char *) &si_other, 0, sizeof(si_other));
+			si_other.sin_family = AF_INET;
+			si_other.sin_port = htons(Port);
+
+			if(inet_aton(IP, &si_other.sin_addr) == 0) {
+				fprintf(stderr, "inet_aton() failed\n");
+				exit(1);
+			}
+
+			if(sendto(s, &buf, sizeof(packet_t) , 0, (struct sockaddr *) &si_other, slen)==-1)
+				die("sendto()");
+
+			close(s);
 		}
 
-		if(sendto(s, &buf, sizeof(packet_t) , 0, (struct sockaddr *) &si_other, slen)==-1)
-			die("sendto()");
-
-		close(s);
+		sleep(3);
 	}
 }
