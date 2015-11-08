@@ -41,7 +41,7 @@ typedef struct header_t {
 /******** Variaveis globais *********/
 extern pthread_mutex_t lock;
 extern char _ACK;				/* Indica recepcao de confirmacao (0-Nao recebeu, 1-recebeu) */
-extern header_t _roteador;		/* Informacoes da rede */
+extern header_t _ROTEADOR;		/* Informacoes da rede */
 extern int _ID;					/* ID do roteadore instanciado */
 
 /*******************************************************************/

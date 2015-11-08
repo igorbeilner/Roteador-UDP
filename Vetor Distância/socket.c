@@ -10,7 +10,7 @@ void interface(void) {
 	int ID, idMax, i;
 	pthread_mutex_lock(&lock);
 	ID = _ID;
-	idMax = _roteador.N;
+	idMax = _ROTEADOR.N;
 	pthread_mutex_unlock(&lock);
 
 	while(1) {
@@ -23,8 +23,8 @@ void interface(void) {
 			return;
 		}
 		pthread_mutex_lock(&lock);
-		_roteador.sequence[buf.id-1]++;
-		buf.sequence = _roteador.sequence[buf.id-1];
+		_ROTEADOR.sequence[buf.id-1]++;
+		buf.sequence = _ROTEADOR.sequence[buf.id-1];
 		pthread_mutex_unlock(&lock);
 
 		scanf("%s", buf.message);
@@ -154,15 +154,15 @@ void refresh(void) {
 	int Port, next, i, j;
 	char IP[IPLEN];
 
-	for(j=1; j<_roteador.E; j++) {
+	for(j=1; j<_ROTEADOR.E; j++) {
 		if(j == _ID)
 			continue;
 
 		pthread_mutex_lock(&lock);
 
-			Port = _roteador.data[j].port;
-			for(i=0; _roteador.data[j].id[i] != '\0'; i++)
-				IP[i] = _roteador.data[j].id[i];
+			Port = _ROTEADOR.data[j].port;
+			for(i=0; _ROTEADOR.data[j].id[i] != '\0'; i++)
+				IP[i] = _ROTEADOR.data[j].id[i];
 			IP[i] = '\0';
 
 		pthread_mutex_unlock(&lock);

@@ -21,7 +21,7 @@
 #include "roteador.h"
 
 pthread_mutex_t lock;
-header_t _roteador;
+header_t _ROTEADOR;
 char _ACK;
 int _ID;
 

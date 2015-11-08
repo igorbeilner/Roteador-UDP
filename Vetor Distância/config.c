@@ -5,8 +5,8 @@
 void linkInit(int N) {
 	int i;
 	for(i=0; i<=N; i++) {
-		_roteador.link[i] = INFINITO;
-		_roteador.sequence[i] = 0;
+		_ROTEADOR.link[i] = INFINITO;
+		_ROTEADOR.sequence[i] = 0;
 	}
 }
 
@@ -15,8 +15,8 @@ void linkInit(int N) {
 void ipCopy(char *IP, int adjCount) {
 	int i;
 	for(i=0; IP[i] != '\0'; i++)
-		_roteador.data[adjCount].ip[i] = IP[i];
-	_roteador.data[adjCount].ip[i] = '\0';
+		_ROTEADOR.data[adjCount].ip[i] = IP[i];
+	_ROTEADOR.data[adjCount].ip[i] = '\0';
 }
 
 /****************************************************/
@@ -24,9 +24,9 @@ void ipCopy(char *IP, int adjCount) {
 void showEnlacesConfig(void) {
 	int i;
 	printf("  Origem  |  Destino  |  Custo\n");
-	for(i=0; i<=_roteador.N; i++)
-		if(_roteador.link[i] != INFINITO)
-			printf("   %-6d |   %-7d |   %d\n", _ID, i, _roteador.link[i]);
+	for(i=0; i<=_ROTEADOR.N; i++)
+		if(_ROTEADOR.link[i] != INFINITO)
+			printf("   %-6d |   %-7d |   %d\n", _ID, i, _ROTEADOR.link[i]);
 }
 
 /****************************************************/
@@ -34,8 +34,8 @@ void showEnlacesConfig(void) {
 void showRoteadorConfig(void) {
 	int i;
 	printf("Roteador   |   Porta   |   IP\n");
-	for(i=0; i<=_roteador.E; i++)
-		printf("   %-5d   |   %-6d  | %s\n", _roteador.data[i].id, _roteador.data[i].port, _roteador.data[i].ip);
+	for(i=0; i<=_ROTEADOR.E; i++)
+		printf("   %-5d   |   %-6d  | %s\n", _ROTEADOR.data[i].id, _ROTEADOR.data[i].port, _ROTEADOR.data[i].ip);
 
 }
 
@@ -70,19 +70,19 @@ void routerInit(void) {
 		fclose(F);
 		exit(1);
 	}
-	_roteador.link = (int*)malloc(maxVertex*(sizeof(int))+1);
-	_roteador.N = maxVertex;
-	_roteador.sequence = (int*)malloc(maxVertex*sizeof(int)+1);
+	_ROTEADOR.link = (int*)malloc(maxVertex*(sizeof(int))+1);
+	_ROTEADOR.N = maxVertex;
+	_ROTEADOR.sequence = (int*)malloc(maxVertex*sizeof(int)+1);
 	linkInit(maxVertex);
 
 	fseek(F, 0, SEEK_SET);
 	while(fscanf(F, "%d %d %d", &v, &w, &cost) != EOF) {
 		if(v == _ID)
-			_roteador.link[w] = cost, adjCount++;
+			_ROTEADOR.link[w] = cost, adjCount++;
 		else if(w == _ID)
-			_roteador.link[v] = cost, adjCount++;
+			_ROTEADOR.link[v] = cost, adjCount++;
 	}
-	_roteador.data = (enlace_t*)malloc(adjCount*(sizeof(enlace_t)));
+	_ROTEADOR.data = (enlace_t*)malloc(adjCount*(sizeof(enlace_t)));
 
 	fclose(F);
 
@@ -97,7 +97,7 @@ void routerInit(void) {
 	}
 
 	while(fscanf(F, "%d %d %s", &IDRouterF, &Port, IP) == 3)
-		if(IDRouterF < 1 || IDRouterF > _roteador.N)
+		if(IDRouterF < 1 || IDRouterF > _ROTEADOR.N)
 			break;
 
 	if(fgetc(F) != EOF) {
@@ -109,14 +109,14 @@ void routerInit(void) {
 	adjCount=-1;
 	fseek(F, 0, SEEK_SET);
 	while(fscanf(F, "%d %d %s", &IDRouterF, &Port, IP) == 3) {
-		if(_roteador.link[IDRouterF] != INFINITO || IDRouterF == _ID) {
+		if(_ROTEADOR.link[IDRouterF] != INFINITO || IDRouterF == _ID) {
 			adjCount++;
-			_roteador.data[adjCount].id 	= IDRouterF;
-			_roteador.data[adjCount].port 	= Port;
+			_ROTEADOR.data[adjCount].id 	= IDRouterF;
+			_ROTEADOR.data[adjCount].port 	= Port;
 			ipCopy(IP, adjCount);
 		}
 	}
-	_roteador.E = adjCount;
+	_ROTEADOR.E = adjCount;
 
 	fclose(F);
 
