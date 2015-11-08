@@ -26,7 +26,7 @@ char _ACK;
 int _ID;
 
 int main() {
-	pthread_t recThread;//, sendThread;
+	pthread_t recThread, sendThread;
 	pthread_t pRefresh;
 	_ACK = 0;
 
@@ -53,12 +53,12 @@ int main() {
 	pthread_mutex_init(&_LOCK, NULL);
 	pthread_create(&pRefresh, NULL, 	(void *)refresh, 	NULL);
 
-	//pthread_create(&sendThread, NULL, 	(void *)interface, 	NULL);
+	pthread_create(&sendThread, NULL, 	(void *)interface, 	NULL);
 	pthread_create(&recThread, 	NULL, 	(void *)packetReceive, 	NULL);
 
 	pthread_join(pRefresh, 	NULL);
-	//pthread_join(sendThread, 	NULL);
-	//pthread_cancel(recThread);
+	pthread_join(sendThread, 	NULL);
+	pthread_cancel(recThread);
 
 	pthread_join(recThread, 	NULL);
 /***********************************************************************/
