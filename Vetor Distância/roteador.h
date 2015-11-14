@@ -32,11 +32,13 @@ typedef struct enlace_t {
 /******************************/
 /**** Estrutura do roteador ***/
 typedef struct header_t {
-	int N;				/* Numero de roteadores da rede */
-	int E;				/* Numero de roteadores vizinhos */
-	int *sequence;		/* Controla o numero de sequencia dos pacotes para cada destino */
-	unsigned char *link;/* Roteadores vizinhos */
-	enlace_t *data;		/* IP e Porta dos roteadores vizinhos */
+	int N;					/* Numero de roteadores da rede */
+	int E;					/* Numero de roteadores vizinhos */
+	int *sequence;			/* Controla o numero de sequencia dos pacotes para cada destino */
+	unsigned char *link;	/* Roteadores vizinhos */
+	enlace_t *data;			/* IP e Porta dos roteadores vizinhos */
+	unsigned char *nextHop;	/* Armazena o proximo salto para cada destino da rede */
+	unsigned char **nextTable;
 }header_t;
 
 /************************************/
@@ -44,7 +46,7 @@ typedef struct header_t {
 extern pthread_mutex_t 	_LOCK;
 extern char 			_ACK;			/* Indica recepcao de confirmacao (0-Nao recebeu, 1-recebeu) */
 extern header_t 		_ROTEADOR;		/* Informacoes da rede */
-extern int 				_ID;			/* ID do roteadore instanciado */
+extern int 				_ID;			/* ID do roteador instanciado */
 
 /*******************************************************************/
 /********************* protótipos das funções **********************/
@@ -58,3 +60,6 @@ void 		showEnlacesConfig	(void);
 void		showRoteadorConfig	(void);
 void		routerInit			(void);
 void		refresh				(void);
+void 		undoLock			(void);
+int 		nextHop				(char *distanceVector, int V);
+void 		nextHopInit			(void);

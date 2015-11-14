@@ -7,7 +7,19 @@ void linkInit(int N) {
 	for(i=0; i<=N; i++) {
 		_ROTEADOR.link[i] = INFINITO;
 		_ROTEADOR.sequence[i] = 0;
+		_ROTEADOR.nextHop[i] = 254;
+		_ROTEADOR.nextTable[i] = (unsigned char*)malloc((1+_ROTEADOR.N)*(sizeof(unsigned char)));
 	}
+}
+
+/*******************************************************/
+/* Inicializa o vetor de proximo salto para roteamento */
+void nextHopInit(void) {
+	int i;
+	_ROTEADOR.nextHop[_ID] = (unsigned char)_ID;
+	for(i=0; i<=_ROTEADOR.N; i++)
+		if(_ROTEADOR.link[i] != INFINITO && i != _ID)
+			_ROTEADOR.nextHop[i] = _ROTEADOR.nextTable[i][_ID] = i;
 }
 
 /****************************************************/
@@ -17,6 +29,19 @@ void ipCopy(char *IP, int adjCount) {
 	for(i=0; IP[i] != '\0'; i++)
 		_ROTEADOR.data[adjCount].ip[i] = IP[i];
 	_ROTEADOR.data[adjCount].ip[i] = '\0';
+}
+
+/****************************************************/
+/************* Libera a memoria alocada *************/
+void undoLock(void) {
+	int i;
+	free(_ROTEADOR.link);
+	free(_ROTEADOR.data);
+	free(_ROTEADOR.sequence);
+	free(_ROTEADOR.nextHop);
+	for(i=0; i<=_ROTEADOR.N; i++)
+		free(_ROTEADOR.nextTable[i]);
+	free(_ROTEADOR.nextTable);
 }
 
 /****************************************************/
@@ -70,9 +95,12 @@ void routerInit(void) {
 		fclose(F);
 		exit(1);
 	}
-	_ROTEADOR.link = (unsigned char*)malloc(maxVertex*(sizeof(unsigned char))+1);
+	_ROTEADOR.link 		= (unsigned char*)	malloc((1+maxVertex)*(sizeof(unsigned char)));
+	_ROTEADOR.nextHop 	= (unsigned char*)	malloc((1+maxVertex)*(sizeof(unsigned char)));
+	_ROTEADOR.nextTable = (unsigned char**)	malloc((1+maxVertex)*(sizeof(unsigned char*)));
+	_ROTEADOR.sequence 	= (int*)			malloc((1+maxVertex)*(sizeof(int)));
 	_ROTEADOR.N = maxVertex;
-	_ROTEADOR.sequence = (int*)malloc(maxVertex*sizeof(int)+1);
+
 	linkInit(maxVertex);
 
 	fseek(F, 0, SEEK_SET);
@@ -83,7 +111,7 @@ void routerInit(void) {
 			_ROTEADOR.link[v] = cost, adjCount++;
 	}
 	//_ROTEADOR.link[_ID] = 0;
-	_ROTEADOR.data = (enlace_t*)malloc(adjCount*(sizeof(enlace_t)));
+	_ROTEADOR.data = (enlace_t*)malloc((1+maxVertex)*(sizeof(enlace_t)));
 
 	fclose(F);
 

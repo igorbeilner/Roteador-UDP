@@ -40,28 +40,34 @@ int main() {
 		return 0;
 	}
 	routerInit();									/* Abre os arquivos e configura a rede */
+	nextHopInit();
 
 /***********************************************************************/
 
-	showEnlacesConfig();
-	printf("\n");
-	showRoteadorConfig();
+	//showEnlacesConfig();
+	//printf("\n");
+	//showRoteadorConfig();
+
 /***********************************************************************/
 
 /**** Cria uma thread para ouvir a porta e outra para enviar dados *****/
 
 	pthread_mutex_init(&_LOCK, NULL);
+
 	pthread_create(&pRefresh, NULL, 	(void *)refresh, 	NULL);
-
-	pthread_create(&sendThread, NULL, 	(void *)interface, 	NULL);
 	pthread_create(&recThread, 	NULL, 	(void *)packetReceive, 	NULL);
+	pthread_create(&sendThread, NULL, 	(void *)interface, 	NULL);
 
-	pthread_join(pRefresh, 	NULL);
 	pthread_join(sendThread, 	NULL);
+
+	pthread_cancel(pRefresh);
 	pthread_cancel(recThread);
 
+	pthread_join(pRefresh, 	NULL);
 	pthread_join(recThread, 	NULL);
-/***********************************************************************/
 
+
+/***********************************************************************/
+	undoLock();
 	return 0;
 }
