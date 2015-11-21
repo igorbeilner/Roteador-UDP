@@ -7,6 +7,7 @@ void linkInit(int N) {
 	for(i=0; i<=N; i++) {
 		_ROTEADOR.link[i] = INFINITO;
 		_ROTEADOR.sequence[i] = 0;
+		_ROTEADOR.validity[i] = 3;
 		_ROTEADOR.nextHop[i] = 254;
 		_ROTEADOR.nextTable[i] = (unsigned char*)malloc((1+_ROTEADOR.N)*(sizeof(unsigned char)));
 	}
@@ -15,11 +16,29 @@ void linkInit(int N) {
 /*******************************************************/
 /* Inicializa o vetor de proximo salto para roteamento */
 void nextHopInit(void) {
-	int i;
+	int i, j;
 	_ROTEADOR.nextHop[_ID] = (unsigned char)_ID;
 	for(i=0; i<=_ROTEADOR.N; i++)
-		if(_ROTEADOR.link[i] != INFINITO && i != _ID)
-			_ROTEADOR.nextHop[i] = _ROTEADOR.nextTable[i][_ID] = i;
+		for(j=0; j<=_ROTEADOR.N; j++)
+			_ROTEADOR.nextTable[i][j] = INFINITO;
+
+	for(i=0; i<=_ROTEADOR.N; i++) {
+		_ROTEADOR.nextTable[i][_ID] = _ROTEADOR.link[i];
+		if(_ROTEADOR.link[i] != INFINITO)
+			_ROTEADOR.nextHop[i] = i;
+	}
+
+	_ROTEADOR.nextHop[_ID] = _ID;
+
+}
+
+void showTable(void) {
+	int i;
+	printf("\n");
+	printf("DESTINO | NHOP | CUSTO\n");
+	for(i=1; i<=_ROTEADOR.N; i++)
+		printf("   %-4d |  %-3d |  %-3d\n", i, _ROTEADOR.nextHop[i], _ROTEADOR.link[i]);
+	printf("\n");
 }
 
 /****************************************************/
@@ -39,6 +58,7 @@ void undoLock(void) {
 	free(_ROTEADOR.data);
 	free(_ROTEADOR.sequence);
 	free(_ROTEADOR.nextHop);
+	free(_ROTEADOR.validity);
 	for(i=0; i<=_ROTEADOR.N; i++)
 		free(_ROTEADOR.nextTable[i]);
 	free(_ROTEADOR.nextTable);
@@ -97,6 +117,7 @@ void routerInit(void) {
 	}
 	_ROTEADOR.link 		= (unsigned char*)	malloc((1+maxVertex)*(sizeof(unsigned char)));
 	_ROTEADOR.nextHop 	= (unsigned char*)	malloc((1+maxVertex)*(sizeof(unsigned char)));
+	_ROTEADOR.validity 	= (unsigned char*)	malloc((1+maxVertex)*(sizeof(unsigned char)));
 	_ROTEADOR.nextTable = (unsigned char**)	malloc((1+maxVertex)*(sizeof(unsigned char*)));
 	_ROTEADOR.sequence 	= (int*)			malloc((1+maxVertex)*(sizeof(int)));
 	_ROTEADOR.N = maxVertex;
@@ -110,7 +131,7 @@ void routerInit(void) {
 		else if(w == _ID)
 			_ROTEADOR.link[v] = cost, adjCount++;
 	}
-	//_ROTEADOR.link[_ID] = 0;
+	_ROTEADOR.link[_ID] = 0;
 	_ROTEADOR.data = (enlace_t*)malloc((1+maxVertex)*(sizeof(enlace_t)));
 
 	fclose(F);

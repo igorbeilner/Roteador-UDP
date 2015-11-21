@@ -20,7 +20,6 @@
 
 #include "roteador.h"
 
-pthread_mutex_t _LOCK;
 header_t _ROTEADOR;
 char _ACK;
 int _ID;
@@ -44,15 +43,9 @@ int main() {
 
 /***********************************************************************/
 
-	//showEnlacesConfig();
-	//printf("\n");
-	//showRoteadorConfig();
-
 /***********************************************************************/
 
-/**** Cria uma thread para ouvir a porta e outra para enviar dados *****/
-
-	pthread_mutex_init(&_LOCK, NULL);
+/**** Cria uma thread para realizar o refresh periodicamento, outra ouvir a porta e outra para enviar dados *****/
 
 	pthread_create(&pRefresh, NULL, 	(void *)refresh, 	NULL);
 	pthread_create(&recThread, 	NULL, 	(void *)packetReceive, 	NULL);

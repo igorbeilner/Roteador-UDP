@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #define INFINITO 255	/* Custo para um roteador se caminho */
+#define INFINITY 70		/* Custo para identificar loop quando cai um enlace */
 #define DIAMETRO 20		/* Diametro da rede */
 #define BUFLEN 100     	/* Tamanho maximo da mensagem enviada pelo usuario */
 #define IPLEN 15		/* Tamanho da string IP */
@@ -37,13 +38,13 @@ typedef struct header_t {
 	int *sequence;			/* Controla o numero de sequencia dos pacotes para cada destino */
 	unsigned char *link;	/* Roteadores vizinhos */
 	enlace_t *data;			/* IP e Porta dos roteadores vizinhos */
+	unsigned char *validity;/* Armazena a credibilidade do enlace */
 	unsigned char *nextHop;	/* Armazena o proximo salto para cada destino da rede */
 	unsigned char **nextTable;
 }header_t;
 
 /************************************/
 /******** Variaveis globais *********/
-extern pthread_mutex_t 	_LOCK;
 extern char 			_ACK;			/* Indica recepcao de confirmacao (0-Nao recebeu, 1-recebeu) */
 extern header_t 		_ROTEADOR;		/* Informacoes da rede */
 extern int 				_ID;			/* ID do roteador instanciado */
@@ -61,5 +62,7 @@ void		showRoteadorConfig	(void);
 void		routerInit			(void);
 void		refresh				(void);
 void 		undoLock			(void);
-int 		nextHop				(char *distanceVector, int V);
+void 		nextHop				(packet_t buf);
 void 		nextHopInit			(void);
+void		sendControl			(void);
+void		showTable			(void);
